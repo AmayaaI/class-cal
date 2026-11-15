@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f8">
+  <title>Degree Class Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18242d;
+      --muted: #65727c;
+      --line: #e2e8eb;
+      --paper: #ffffff;
+      --canvas: #f4f6f8;
+      --teal: #087f78;
+      --teal-dark: #066660;
+      --teal-soft: #e5f4f1;
+      --gold: #e7b65c;
+      --shadow: 0 18px 50px rgba(26, 43, 53, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    .page { max-width: 1160px; margin: 0 auto; padding: 38px 28px 64px; }
+    .topline { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .brand { display: flex; align-items: center; gap: 11px; color: var(--muted); font-size: 13px; font-weight: 650; letter-spacing: .035em; text-transform: uppercase; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 11px; background: var(--teal); color: #fff; }
+    .brand-mark svg { width: 19px; height: 19px; }
+    .top-note { color: var(--muted); font-size: 13px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(315px, 380px); gap: 28px; align-items: stretch; margin-bottom: 24px; }
+    .intro { padding: 20px 0 14px; }
+    .eyebrow { margin: 0 0 9px; color: var(--teal); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(30px, 4vw, 43px); line-height: 1.1; letter-spacing: -.045em; }
+    .lead { max-width: 630px; margin: 14px 0 19px; color: var(--muted); font-size: 15px; }
+    .formula { display: inline-flex; align-items: center; gap: 9px; padding: 9px 12px; border: 1px solid #d7e9e5; border-radius: 10px; background: #edf7f5; color: #315c58; font-size: 12px; }
+    .formula strong { color: var(--teal-dark); }
+    .result-card { position: relative; overflow: hidden; min-height: 202px; padding: 23px 25px; border-radius: 18px; background: #173a3a; color: white; box-shadow: var(--shadow); }
+    .result-card::after { position: absolute; right: -58px; bottom: -105px; width: 245px; height: 245px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; box-shadow: 0 0 0 28px rgba(255,255,255,.035), 0 0 0 58px rgba(255,255,255,.025); content: ""; }
+    .result-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .result-label { margin: 0; color: #bfd7d2; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+    .status-pill { padding: 5px 9px; border: 1px solid rgba(255,255,255,.2); border-radius: 20px; color: #d3e7e3; font-size: 11px; font-weight: 650; }
+    .average { position: relative; z-index: 1; margin: 14px 0 0; font-size: 47px; font-weight: 700; letter-spacing: -.05em; line-height: 1; }
+    .average small { margin-left: 4px; color: #bad3ce; font-size: 20px; font-weight: 500; letter-spacing: 0; }
+    .class-name { position: relative; z-index: 1; margin: 7px 0 0; color: #fff; font-size: 19px; font-weight: 650; }
+    .result-foot { position: relative; z-index: 1; display: flex; gap: 18px; margin-top: 17px; color: #bfd7d2; font-size: 12px; }
+    .result-foot strong { color: white; font-weight: 650; }
+    .panel { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: var(--paper); box-shadow: var(--shadow); }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 23px 17px; }
+    .panel-heading h2 { margin: 0; font-size: 19px; letter-spacing: -.025em; }
+    .panel-heading p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .reset { display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 9px; background: white; color: #4d5a63; cursor: pointer; font-size: 12px; font-weight: 650; transition: background .15s, border-color .15s; }
+    .reset:hover { border-color: #bdcecd; background: #f4faf9; }
+    .reset:focus-visible, input:focus-visible { outline: 3px solid rgba(8,127,120,.22); outline-offset: 2px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; min-width: 720px; border-collapse: collapse; text-align: left; }
+    thead th { padding: 11px 17px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #f8fafb; color: #78858d; font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    th:nth-child(1), td:nth-child(1) { width: 105px; }
+    th:nth-child(2), td:nth-child(2) { width: 140px; }
+    th:nth-child(4), td:nth-child(4) { width: 115px; text-align: center; }
+    th:nth-child(5), td:nth-child(5) { width: 150px; text-align: center; }
+    tbody tr.module-row td { padding: 12px 17px; border-bottom: 1px solid #edf0f2; vertical-align: middle; }
+    tbody tr.module-row:last-child td { border-bottom: 0; }
+    .term-row th { padding: 9px 17px; border-bottom: 1px solid #dce5e7; background: #f0f6f5; color: #315854; font-size: 11px; font-weight: 750; letter-spacing: .075em; text-align: left; text-transform: uppercase; }
+    .code { color: #51616a; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .module-title { font-size: 13px; font-weight: 580; }
+    .credit { color: #64717a; font-size: 13px; }
+    .outcomes { color: #65737b; font-size: 12px; }
+    .mark-input { width: 82px; height: 36px; padding: 0 10px; border: 1px solid #dce4e7; border-radius: 8px; background: #fff; color: var(--ink); text-align: center; transition: border .15s, background .15s; }
+    .mark-input::placeholder { color: #aab4b9; }
+    .mark-input:focus { border-color: var(--teal); outline: 3px solid rgba(8,127,120,.12); }
+    .mark-input[aria-invalid="true"] { border-color: #c94b4b; background: #fff8f7; }
+    .percent { display: inline-block; margin-left: -21px; color: #829097; font-size: 12px; pointer-events: none; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .scale { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); background: #fbfcfc; }
+    .scale-item { padding: 13px 18px 14px; border-right: 1px solid var(--line); }
+    .scale-item:last-child { border-right: 0; }
+    .scale-label { display: block; color: #4e5c64; font-size: 11px; font-weight: 650; }
+    .scale-boundary { display: block; margin-top: 2px; color: #839098; font-size: 11px; }
+    .scale-dot { display: inline-block; width: 7px; height: 7px; margin: 0 6px 1px 0; border-radius: 50%; background: #a9c7c2; }
+    .scale-item:first-child .scale-dot { background: var(--gold); }
+    .scale-item:last-child .scale-dot { background: #bac2c7; }
+    .footnote { display: flex; align-items: flex-start; gap: 9px; padding: 15px 22px 17px; color: #74818a; font-size: 12px; }
+    .footnote svg { flex: 0 0 auto; width: 16px; height: 16px; margin-top: 1px; color: var(--teal); }
+    @media (max-width: 760px) {
+      .page { padding: 22px 15px 40px; }
+      .topline { margin-bottom: 12px; }
+      .top-note { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 16px; margin-bottom: 18px; }
+      .intro { padding: 11px 0 0; }
+      .lead { margin: 11px 0 15px; }
+      .result-card { min-height: 184px; }
+      .panel-head { align-items: flex-start; padding: 18px 16px 15px; }
+      .panel-heading p { max-width: 230px; }
+      .scale { grid-template-columns: repeat(2, 1fr); }
+      .scale-item { border-bottom: 1px solid var(--line); }
+      .scale-item:nth-child(2n) { border-right: 0; }
+      .scale-item:last-child { border-bottom: 0; }
+      .footnote { padding: 13px 16px 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topline">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        Degree planner
+      </div>
+      <span class="top-note">Honours programme · Years 3–4</span>
+    </div>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="intro">
+        <p class="eyebrow">Your results, at a glance</p>
+        <h1 id="page-title">Degree class calculator</h1>
+        <p class="lead">Add your marks for each module to see your current credit-weighted average and estimated degree classification.</p>
+        <div class="formula"><strong>Weighted average</strong><span aria-hidden="true">=</span> sum of (module mark × credit) ÷ credits with marks</div>
+      </div>
+      <section class="result-card" aria-live="polite" aria-atomic="true" aria-label="Your calculated result">
+        <div class="result-top">
+          <p class="result-label">Current weighted average</p>
+          <span class="status-pill" id="status">Waiting for marks</span>
+        </div>
+        <p class="average" id="average">—<small>%</small></p>
+        <p class="class-name" id="classification">Add a module mark</p>
+        <div class="result-foot">
+          <span><strong id="credits-count">0</strong> / <span id="total-credits">240</span> credits</span>
+          <span><strong id="modules-count">0</strong> / <span id="total-modules">13</span> modules marked</span>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel" aria-labelledby="modules-heading">
+      <div class="panel-head">
+        <div class="panel-heading">
+          <h2 id="modules-heading">Module marks</h2>
+          <p>Enter a mark from 0 to 100 for each module.</p>
+        </div>
+        <button class="reset" id="reset" type="button" title="Clear all entered marks">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M8 5V3h4v2m3 0-.7 11H5.7L5 5m3 3v5m4-5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Clear marks
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Credit level</th><th scope="col">Module code</th><th scope="col">Module title</th><th scope="col">Credit value</th><th scope="col">Mark (%)</th></tr>
+          </thead>
+          <tbody id="module-list"></tbody>
+        </table>
+      </div>
+      <div class="scale" aria-label="Classification thresholds">
+        <div class="scale-item"><span class="scale-label"><i class="scale-dot"></i>First Class</span><span class="scale-boundary">70% and above</span></div>
+        <div class="scale-item"><span class="scale-label"><i class="scale-dot"></i>Upper Second</span><span class="scale-boundary">60% – 69.99%</span></div>
+        <div class="scale-item"><span class="scale-label"><i class="scale-dot"></i>Lower Second</span><span class="scale-boundary">50% – 59.99%</span></div>
+        <div class="scale-item"><span class="scale-label"><i class="scale-dot"></i>Third Class</span><span class="scale-boundary">40% – 49.99%</span></div>
+        <div class="scale-item"><span class="scale-label"><i class="scale-dot"></i>Below threshold</span><span class="scale-boundary">Below 40%</span></div>
+      </div>
+      <div class="footnote">
+        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7.25" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v4m0-6h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span>Your average uses only modules with a mark entered, weighted by their credit value. It is a running estimate; your final degree class may use additional university rules.</span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const terms = [
+      { name: "Year 3 · Semester 1", modules: [
+        { level: 5, code: "NB5000CEM", title: "Agile", credit: 20, outcomes: "1, 3, 5" },
+        { level: 5, code: "NB5001CEM", title: "User Experience Designing", credit: 20, outcomes: "3, 4" },
+        { level: 5, code: "NB5002CEM", title: "Programming, Data Structures and Algorithms-2", credit: 20, outcomes: "1, 3, 4, 5" }
+      ]},
+      { name: "Year 3 · Semester 2", modules: [
+        { level: 5, code: "NB5003CEM", title: "Technology and Its Social, Legal and Ethical Context", credit: 10, outcomes: "2" },
+        { level: 5, code: "NB5004CEM", title: "Cyber Security", credit: 20, outcomes: "3, 4" },
+        { level: 5, code: "NB5005CEM", title: "Data Science", credit: 20, outcomes: "6" },
+        { level: 5, code: "NB5006CEM", title: "Effective Communication Skills", credit: 10, outcomes: "2" }
+      ]},
+      { name: "Year 4 · Semester 1", modules: [
+        { level: 6, code: "NB6007CEM", title: "Web API Development", credit: 20, outcomes: "1, 3, 4" },
+        { level: 6, code: "NB6008CEM", title: "Project Discovery", credit: 20, outcomes: "2" },
+        { level: 6, code: "NB6009CEM", title: "IOS Development", credit: 20, outcomes: "1, 3, 4" }
+      ]},
+      { name: "Year 4 · Semester 2", modules: [
+        { level: 6, code: "NB6010CEM", title: "Computer Vision", credit: 20, outcomes: "1, 3, 4, 6" },
+        { level: 6, code: "NB6011CEM", title: "Artificial Intelligence", credit: 10, outcomes: "1, 3, 5" },
+        { level: 6, code: "NB6012CEM", title: "Dissertation and Project Artefact", credit: 30, outcomes: "1, 2, 3, 4, 5, 6" }
+      ]}
+    ];
+    const allModules = terms.flatMap(term => term.modules);
+    const totalCredits = allModules.reduce((sum, module) => sum + module.credit, 0);
+    document.getElementById("total-credits").textContent = totalCredits;
+    document.getElementById("total-modules").textContent = allModules.length;
+    const moduleList = document.getElementById("module-list");
+    const savedMarks = JSON.parse(localStorage.getItem("degree-calculator-marks") || "{}");
+
+    terms.forEach(term => {
+      const group = document.createElement("tr");
+      group.className = "term-row";
+      group.innerHTML = `<th colspan="5" scope="rowgroup">${term.name}</th>`;
+      moduleList.append(group);
+      term.modules.forEach(module => {
+        const row = document.createElement("tr");
+        row.className = "module-row";
+        const saved = savedMarks[module.code] ?? "";
+        row.innerHTML = `
+          <td class="credit">Level ${module.level}</td>
+          <td class="code">${module.code}</td>
+          <td class="module-title">${module.title}</td>
+          <td class="credit">${module.credit}</td>
+          <td><label class="sr-only" for="mark-${module.code}">Mark for ${module.title}</label><input class="mark-input" id="mark-${module.code}" data-code="${module.code}" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="—" value="${saved}" aria-label="Mark for ${module.title} out of 100"><span class="percent">%</span></td>`;
+        moduleList.append(row);
+      });
+    });
+
+    function classificationFor(mark) {
+      if (mark >= 70) return "First Class";
+      if (mark >= 60) return "Upper Second Class";
+      if (mark >= 50) return "Lower Second Class";
+      if (mark >= 40) return "Third Class";
+      return "Below classification threshold";
+    }
+
+    function updateResult() {
+      let weightedTotal = 0;
+      let markedCredits = 0;
+      let markedModules = 0;
+      const currentMarks = {};
+      let hasInvalid = false;
+      document.querySelectorAll(".mark-input").forEach(input => {
+        const raw = input.value.trim();
+        input.setAttribute("aria-invalid", "false");
+        if (raw === "") return;
+        const mark = Number(raw);
+        if (!Number.isFinite(mark) || mark < 0 || mark > 100) {
+          input.setAttribute("aria-invalid", "true");
+          hasInvalid = true;
+          return;
+        }
+        const module = allModules.find(item => item.code === input.dataset.code);
+        currentMarks[module.code] = raw;
+        weightedTotal += mark * module.credit;
+        markedCredits += module.credit;
+        markedModules++;
+      });
+      localStorage.setItem("degree-calculator-marks", JSON.stringify(currentMarks));
+      document.getElementById("credits-count").textContent = markedCredits;
+      document.getElementById("modules-count").textContent = markedModules;
+      const average = markedCredits ? weightedTotal / markedCredits : null;
+      document.getElementById("average").innerHTML = average === null ? "—<small>%</small>" : `${average.toFixed(2)}<small>%</small>`;
+      document.getElementById("classification").textContent = average === null ? "Add a module mark" : classificationFor(average);
+      document.getElementById("status").textContent = hasInvalid ? "Check highlighted marks" : markedCredits === totalCredits ? "All modules entered" : markedModules ? "Running estimate" : "Waiting for marks";
+    }
+
+    document.querySelectorAll(".mark-input").forEach(input => input.addEventListener("input", updateResult));
+    document.getElementById("reset").addEventListener("click", () => {
+      document.querySelectorAll(".mark-input").forEach(input => { input.value = ""; });
+      updateResult();
+      document.querySelector(".mark-input").focus();
+    });
+    updateResult();
+  </script>
+</body>
+</html>
